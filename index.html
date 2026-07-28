@@ -326,6 +326,7 @@ select:focus { outline: none; border-color: var(--gold); }
 }
 .attempt-dot.used-ok  { background: var(--good); }
 .attempt-dot.used-err { background: var(--bad); }
+.attempt-dot.used-partial { background: var(--gold); }
 
 .btn-row { display: flex; gap: 0.75rem; margin-top: 1.25rem; }
 .btn {
@@ -987,10 +988,6 @@ button { touch-action: manipulation; }
         <span>Alle Themen</span>
         <span class="theme-count" id="tc-ALL">2185</span>
       </div>
-      <div class="theme-item" onclick="setTheme('FAUX')" id="theme-FAUX">
-        <span>⚠ Faux amis</span>
-        <span class="theme-count" id="tc-FAUX">–</span>
-      </div>
     </div>
     <div class="sidebar-section">
       <div class="sidebar-title" id="sidebar-title-nach-thema">Nach Thema</div>
@@ -998,7 +995,7 @@ button { touch-action: manipulation; }
     </div>
     <div class="sidebar-section">
       <div class="filter-row">
-        <div class="filter-label">Wortart</div>
+        <div class="filter-label" id="lbl-wc">Wortart</div>
         <select id="wc-filter" onchange="applyFilters()">
           <option value="ALL">Alle Wortarten</option>
           <option value="V">Verb (V)</option>
@@ -1011,7 +1008,7 @@ button { touch-action: manipulation; }
         </select>
       </div>
       <div class="filter-row">
-        <div class="filter-label">Sprachpaar</div>
+        <div class="filter-label" id="lbl-pair">Sprachpaar</div>
         <div class="toggle-group">
           <button class="toggle-btn active" onclick="setPair('ALL')" id="pair-ALL">Alle</button>
           <button class="toggle-btn" onclick="setPair('IT_FR')" id="pair-IT_FR">IT↔FR</button>
@@ -1019,7 +1016,7 @@ button { touch-action: manipulation; }
         </div>
       </div>
       <div class="filter-row">
-        <div class="filter-label">Übungstyp</div>
+        <div class="filter-label" id="lbl-mode">Übungstyp</div>
         <select id="mode-select" onchange="applyFilters()">
           <option value="RANDOM">Gemischt (zufällig)</option>
           <option value="FLASHCARD">Flashcard</option>
@@ -1053,7 +1050,7 @@ button { touch-action: manipulation; }
           <span id="rom-label-text">🔄 ROM→DE Richtung umkehren</span>
         </label>
         <div style="margin-bottom:0.5rem;">
-          <div class="filter-label">Kartenanzahl</div>
+          <div class="filter-label" id="lbl-size">Kartenanzahl</div>
           <select id="session-size" style="width:100%;padding:0.4rem;border:1px solid var(--border);
                   border-radius:6px;font-family:Georgia,serif;font-size:0.82rem;background:var(--surface2);">
             <option value="10">10 Karten</option>
@@ -1065,7 +1062,7 @@ button { touch-action: manipulation; }
         </div>
         <!-- UI Language -->
         <div class="filter-row" style="margin-bottom:0.5rem;">
-          <div class="filter-label">Ausgangssprache</div>
+          <div class="filter-label" id="lbl-src">Ausgangssprache</div>
           <div class="toggle-group">
             <button id="uilang-de" class="toggle-btn active" style="flex:1;font-size:0.78rem;"
                     onclick="setUILang('de')">🇩🇪 DE</button>
@@ -1276,7 +1273,7 @@ button { touch-action: manipulation; }
     <div class="sheet-theme-grid" id="sheet-theme-grid"></div>
 
     <div class="filter-row" style="margin-bottom:0.75rem;">
-      <div class="filter-label">Wortart</div>
+      <div class="filter-label" id="lbl-wc-m">Wortart</div>
       <select id="wc-filter-mobile" onchange="syncMobileFilters()">
         <option value="ALL">Alle Wortarten</option>
         <option value="V">Verb (V)</option>
@@ -1288,7 +1285,7 @@ button { touch-action: manipulation; }
       </select>
     </div>
     <div class="filter-row" style="margin-bottom:0.75rem;">
-      <div class="filter-label">Sprachpaar</div>
+      <div class="filter-label" id="lbl-pair-m">Sprachpaar</div>
       <div class="toggle-group">
         <button class="toggle-btn active" onclick="setPair('ALL');syncMobileFilters()" id="mpair-ALL">Alle</button>
         <button class="toggle-btn" onclick="setPair('IT_FR');syncMobileFilters()" id="mpair-IT_FR">IT↔FR</button>
@@ -1296,7 +1293,7 @@ button { touch-action: manipulation; }
       </div>
     </div>
     <div class="filter-row" style="margin-bottom:0.75rem;">
-      <div class="filter-label">Übungstyp</div>
+      <div class="filter-label" id="lbl-mode-m">Übungstyp</div>
       <select id="mode-select-mobile" onchange="syncMobileFilters()">
         <option value="RANDOM">Gemischt</option>
         <option value="FLASHCARD">Flashcard</option>
@@ -1304,7 +1301,6 @@ button { touch-action: manipulation; }
         <option value="GAP">Lückentext</option>
         <option value="FAUX">Faux amis</option>
         <option value="KONTEXT">Kontext-Satz</option>
-        <option value="CHOICE_DE">ROM → Deutsch</option>
       </select>
     </div>
 
@@ -1324,7 +1320,7 @@ button { touch-action: manipulation; }
     </div>
 
     <div style="margin-bottom:0.75rem;">
-      <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dim);margin-bottom:0.5rem;">Optionen</div>
+      <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dim);margin-bottom:0.5rem;" id="lbl-options-m">Optionen</div>
       <label style="display:flex;align-items:center;gap:0.6rem;cursor:pointer;padding:0.5rem 0;border-bottom:1px solid var(--border);">
         <input type="checkbox" id="reverse-mode-mobile"
                onchange="reverseMode=this.checked;var d=document.getElementById('reverse-check');if(d)d.checked=this.checked;"
@@ -2189,17 +2185,23 @@ function renderGap(entry) {
 
 function gapGrade() {
   // Grade based on which attempt succeeded (or 0 if never)
-  const dots = document.querySelectorAll('.attempt-dot');
-  const okDot = Array.from(dots).findIndex(d => d.classList.contains('used-ok'));
-  if (okDot === 0) return 2;   // first try → gut
-  if (okDot === 1) return 1;   // second try → schwer
-  if (okDot === 2) return 1;   // third try → schwer
-  return 0;                    // never right → wieder
+  const dots  = Array.from(document.querySelectorAll('.attempt-dot'));
+  const okDot = dots.findIndex(d => d.classList.contains('used-ok'));
+  if (okDot === -1) return 0;                         // never right → wieder
+  // "Almost right" (missing or wrong article) never counts as a clean hit,
+  // so the card comes back sooner.
+  if (dots[okDot].classList.contains('used-partial')) return 1;
+  return okDot === 0 ? 2 : 1;                         // first try → gut, else schwer
 }
 
 // Robust normalisation: strip accents, punctuation, whitespace, parentheticals
-function normalise(s) {
-  return s.toLowerCase()
+// Article pattern for Romance languages (+ German), used to compare
+// "el luto" vs "luto" vs "la luto" separately from the stem.
+const ARTICLE_RE = /^(el|la|los|las|le|les|l|il|lo|i|gli|un|una|une|uno|uns|unas|unos|um|uma|a|as|o|os|der|die|das|ein|eine)[\s']+/i;
+
+// Strict: keeps the article — used to decide "fully correct".
+function normaliseStrict(s) {
+  return (s || '').toLowerCase()
     .replace(/\(.*?\)/g, '')      // remove parenthetical hints
     .replace(/,\s*-[aeo]\b.*/,'') // strip inflection suffix ", -a" etc.
     .replace(/\s*\/\s*.*/,'')    // take only first variant if "/" present
@@ -2208,6 +2210,20 @@ function normalise(s) {
     .replace(/[\u0300-\u036f]/g, '') // strip diacritics
     .replace(/[^a-z]/g, '')         // keep only letters
     .trim();
+}
+
+// Lenient: strips a leading article — used to detect "stem correct".
+function normalise(s) {
+  return normaliseStrict((s || '').toLowerCase()
+    .replace(/\(.*?\)/g, '')
+    .replace(/,\s*-[aeo]\b.*/,'')
+    .replace(/\s*\/\s*.*/,'')
+    .replace(ARTICLE_RE, ''));
+}
+
+// Does the answer carry an article at all?
+function hasArticle(s) {
+  return ARTICLE_RE.test((s || '').trim());
 }
 
 // Check if user answer is a close enough match
@@ -2246,19 +2262,31 @@ function checkGap() {
   const btns = document.getElementById('gap-btns');
   const next = document.getElementById('gap-next');
 
-  // Check exact or near match
-  const exact = normalise(val) === normalise(gapAnswer);
-  const close = !exact && isMatch(val, gapAnswer);
-  const ok    = exact || close;
+  // Three-way outcome: exact / article issue / near miss
+  const exact    = normaliseStrict(val) === normaliseStrict(gapAnswer);
+  const stemOk   = !exact && normalise(val) === normalise(gapAnswer);
+  const artIssue = stemOk && hasArticle(gapAnswer);
+  const close    = !exact && !stemOk && isMatch(val, gapAnswer);
+  const ok       = exact || stemOk || close;
+  window._gapArticleIssue = artIssue;
 
   if (ok) {
     dot.classList.add('used-ok');
+    if (!exact) dot.classList.add('used-partial');
     input.classList.add('correct-input');
     input.disabled = true;
+    const almost = uiLang === 'en' ? 'Almost right' : 'Fast richtig';
+    const exForm = uiLang === 'en' ? 'Exact form:'   : 'Exakte Form:';
+    const artMsg = uiLang === 'en'
+      ? 'Watch the article / gender.'
+      : 'Achte auf Artikel und Genus.';
     const msg = exact
       ? `<span class="fb-icon">&#10003;</span><div class="fb-body">${t('correct')}</div>`
-      : `<span class="fb-icon">✓</span><div class="fb-body">Fast perfekt!
-          <div class="fb-correct">Exakte Form: <strong>${gapAnswer}</strong></div></div>`;
+      : artIssue
+        ? `<span class="fb-icon">≈</span><div class="fb-body">${almost} – ${artMsg}
+            <div class="fb-correct">${exForm} <strong>${gapAnswer}</strong></div></div>`
+        : `<span class="fb-icon">≈</span><div class="fb-body">${almost}
+            <div class="fb-correct">${exForm} <strong>${gapAnswer}</strong></div></div>`;
     fb.innerHTML = msg;
     fb.className = 'feedback ok visible';
     btns.style.display = 'none';
@@ -2273,8 +2301,8 @@ function checkGap() {
       // All attempts used → reveal answer
       input.disabled = true;
       fb.innerHTML = `<span class="fb-icon">✗</span>
-        <div class="fb-body">Leider falsch.
-          <div class="fb-correct">${t('rightAnswer') + ' '}<strong style="color:var(--it)">${gapAnswer}</strong></div>
+        <div class="fb-body">${t('wrong')}
+          <div class="fb-correct">${t('rightAnswer')} <strong style="color:var(--it)">${gapAnswer}</strong></div>
         </div>`;
       fb.className = 'feedback err visible';
       btns.style.display = 'none';
@@ -2283,7 +2311,7 @@ function checkGap() {
     } else {
       const left = MAX_ATTEMPTS - gapAttempts;
       fb.innerHTML = `<span class="fb-icon">✗</span>
-        <div class="fb-body">${t('wrong')} – ${left} Versuch${left===1?'':'e'}.</div>`;
+        <div class="fb-body">${t('wrong')} – ${left} ${left===1 ? (uiLang==='en'?'attempt':'Versuch') : (uiLang==='en'?'attempts':'Versuche')}.</div>`;
       fb.className = 'feedback err visible';
       // Reset input for next attempt
       setTimeout(() => {
@@ -2406,48 +2434,28 @@ function getSimilar(entry, targetLang, count) {
 }
 
 function renderFaux(entry) {
-  // Decide direction: if currentPair set, respect it; else random
-  let srcLang, tgtLang;
-  const langs = getLangsForPair();
+  // Source is always a Romance language; target follows the UI language.
+  const romLangs = ['it','fr','sp','pt'];
+  const langs    = getLangsForPair();
+  const pool     = (langs.length === 2 ? langs : romLangs).filter(l => entry[l]);
+  if (!pool.length) return renderChoice(entry);
 
-  if (langs.length === 2) {
-    // IT↔FR or SP↔PT mode: show word in one, ask for the other
-    [srcLang, tgtLang] = Math.random() < 0.5
-      ? [langs[0], langs[1]]
-      : [langs[1], langs[0]];
-  } else {
-    // All-languages mode: pick a random direction, favour cross-family pairs
-    const crossFamilyPairs = [
-      ['it','fr'],['fr','it'],['it','sp'],['sp','it'],
-      ['fr','sp'],['sp','fr'],['fr','pt'],['pt','fr'],
-      ['de','it'],['de','fr'],['de','sp'],['de','pt'],
-      ['it','de'],['fr','de'],['sp','de'],['pt','de'],
-    ];
-    [srcLang, tgtLang] = crossFamilyPairs[
-      Math.floor(Math.random() * crossFamilyPairs.length)
-    ];
-  }
+  const srcLang = pool[Math.floor(Math.random() * pool.length)];
+  const tgtLang = uiLang === 'en' ? 'en' : 'de';
 
   const srcWord    = entry[srcLang];
-  const correctAns = entry[tgtLang];
-  if (!srcWord || !correctAns) {
-    // Fallback if entry lacks this language
-    return renderChoice(entry);
-  }
+  const correctAns = entry[tgtLang] || entry.de;
+  if (!srcWord || !correctAns) return renderChoice(entry);
 
   // Get 2 distractors
   const distractors = getSimilar(entry, tgtLang, 2);
   const options = shuffle([correctAns, ...distractors.slice(0,2)]);
 
   const srcColor = LANG_COLOR_MAP[srcLang];
-  const tgtColor = LANG_COLOR_MAP[tgtLang];
+  const tgtColor = LANG_COLOR_MAP[tgtLang] || 'var(--text)';
   const srcName  = LANG_NAME_MAP[srcLang];
   const tgtName  = LANG_NAME_MAP[tgtLang];
 
-  // Encode for onclick
-  const correctEnc = correctAns.replace(/\\/g,'\\\\').replace(/'/g,"\'").replace(/"/g,'&quot;');
-
-  // Store correct answer safely - no inline string injection
   window._fauxCorrect = correctAns;
 
   return `<div class="card">
@@ -2469,10 +2477,6 @@ function renderFaux(entry) {
       ${srcLang==='fr' && entry.ipa
         ? `<div style="font-size:0.75rem;color:var(--text-dim);margin-top:0.2rem;">${entry.ipa}</div>`
         : ''}
-    </div>
-
-    <div style="font-size:0.82rem;color:var(--text-dim);margin-bottom:0.75rem;">
-      ${t('choiceQ')} ${tgtName}?
     </div>
 
     <!-- 3 options – data-answer avoids any apostrophe/quote injection -->
@@ -3378,9 +3382,6 @@ function renderChoiceDE(entry) {
       </div>
       <div style="font-size:0.8rem;color:var(--text-dim);">${wctag(entry.wc)}</div>
     </div>
-    <div style="font-size:0.78rem;color:var(--text-dim);margin-bottom:0.75rem;text-align:center;">
-      ${t('choiceQ')} ${t('langLabel')}?
-    </div>
     <div class="options-grid" id="opts-de">
       ${options.map(opt => `
         <div class="option" data-answer="${opt.replace(/"/g,'&quot;')}"
@@ -3477,10 +3478,16 @@ function applyI18N() {
   if (backFixed) backFixed.textContent = t('backBtn');
 
   // ── Sidebar filter labels ────────────────────────────────────
-  const filterLabels = document.querySelectorAll('.filter-label');
-  const labelKeys = ['wcLabel','pairLabel','modeLabel_','sizeLabel','sessionMode','srcLang'];
-  filterLabels.forEach((el, i) => {
-    if (labelKeys[i]) el.textContent = t(labelKeys[i]);
+  const lblMap = {
+    'lbl-wc':   'wcLabel',   'lbl-wc-m':      'wcLabel',
+    'lbl-pair': 'pairLabel', 'lbl-pair-m':    'pairLabel',
+    'lbl-mode': 'modeLabel', 'lbl-mode-m':    'modeLabel',
+    'lbl-size': 'sizeLabel', 'lbl-options-m': 'options',
+    'lbl-src':  'srcLang',
+  };
+  Object.keys(lblMap).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = t(lblMap[id]);
   });
 
   // ── Word class select ─────────────────────────────────────────
@@ -4088,7 +4095,6 @@ function initSidebar() {
         <span class="theme-count" id="tc-${key}">${themeCounts[key]||0}</span>
       </div>`).join('');
 
-  document.getElementById('tc-FAUX').textContent = RAW.faux.length;
   document.getElementById('tc-ALL').textContent  = VOCAB.length;
 }
 
@@ -4226,7 +4232,6 @@ function buildSheetThemeGrid() {
   VOCAB.forEach(e => { counts[e.theme] = (counts[e.theme]||0)+1; });
   const items = [
     { key: 'ALL', label: 'Alle' },
-    { key: 'FAUX', label: '⚠ Faux amis' },
     ...Object.entries(THEME_LABELS)
       .sort((a,b) => (counts[b[0]]||0)-(counts[a[0]]||0))
       .map(([k,v]) => ({ key: k, label: v }))
