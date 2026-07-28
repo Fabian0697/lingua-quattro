@@ -984,9 +984,14 @@ button { touch-action: manipulation; }
     <div class="sidebar-section">
       <div class="sidebar-title" id="sidebar-title-thema">Thema</div>
       <div class="theme-item active" onclick="setTheme('ALL')" id="theme-ALL">
-        <span>All themes</span>
+        <span>Alle Themen</span>
         <span class="theme-count" id="tc-ALL">2185</span>
       </div>
+      <div class="theme-item" onclick="setTheme('FAUX')" id="theme-FAUX">
+        <span>⚠ Faux amis</span>
+        <span class="theme-count" id="tc-FAUX">–</span>
+      </div>
+    </div>
     <div class="sidebar-section">
       <div class="sidebar-title" id="sidebar-title-nach-thema">Nach Thema</div>
       <div id="theme-list"></div>
@@ -1027,18 +1032,18 @@ button { touch-action: manipulation; }
       <div class="filter-row">
         <div style="display:flex;gap:0.4rem;margin-bottom:0.5rem;">
           <button id="mode-lernen"
-            onclick="sessionMode='LERNEN';document.getElementById('mode-hint').textContent=t('learn_hint');this.classList.add('active');document.getElementById('mode-ueben').classList.remove('active')"
+            onclick="sessionMode='LERNEN';document.getElementById('mode-hint').textContent='📚 Lernen: falsche Antworten kommen zurück (max. 1× pro Karte)';this.classList.add('active');document.getElementById('mode-ueben').classList.remove('active')"
             class="toggle-btn" style="flex:1;padding:0.4rem;font-size:0.72rem;">
             📚 Lernen
           </button>
           <button id="mode-ueben"
-            onclick="sessionMode='UEBEN';document.getElementById('mode-hint').textContent=t('practice_hint').replace('N',document.getElementById('session-size')?.value||'30');this.classList.add('active');document.getElementById('mode-lernen').classList.remove('active')"
+            onclick="sessionMode='UEBEN';document.getElementById('mode-hint').textContent='🎯 Üben: genau 30 Karten, jede einmal';this.classList.add('active');document.getElementById('mode-lernen').classList.remove('active')"
             class="toggle-btn active" style="flex:1;padding:0.4rem;font-size:0.72rem;">
             🎯 Üben
           </button>
         </div>
         <div id="mode-hint" style="font-size:0.68rem;color:var(--text-dim);margin-bottom:0.5rem;min-height:2em;line-height:1.4;">
-          🎯 Practice
+          🎯 Üben: genau 30 Karten, jede einmal
         </div>
         <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.72rem;
                        color:var(--text-dim);cursor:pointer;margin-bottom:0.4rem;">
@@ -1197,19 +1202,19 @@ button { touch-action: manipulation; }
       <div class="dash-grid">
         <div class="dash-card">
           <div class="dash-val" id="d-learned">0</div>
-          <div class="dash-label">Gesehen</div>
+          <div class="dash-label" id="lbl-learned">Gesehen</div>
         </div>
         <div class="dash-card">
           <div class="dash-val" id="d-mastered">0</div>
-          <div class="dash-label">Gemeistert</div>
+          <div class="dash-label" id="lbl-mastered">Gemeistert</div>
         </div>
         <div class="dash-card">
           <div class="dash-val" id="d-due">0</div>
-          <div class="dash-label">Heute fällig</div>
+          <div class="dash-label" id="lbl-due">Heute fällig</div>
         </div>
         <div class="dash-card">
           <div class="dash-val" id="d-streak">0</div>
-          <div class="dash-label">Lernserie (Tage)</div>
+          <div class="dash-label" id="lbl-streak">Lernserie (Tage)</div>
         </div>
       </div>
       <div class="card">
@@ -1299,6 +1304,7 @@ button { touch-action: manipulation; }
         <option value="GAP">Lückentext</option>
         <option value="FAUX">Faux amis</option>
         <option value="KONTEXT">Kontext-Satz</option>
+        <option value="CHOICE_DE">ROM → Deutsch</option>
       </select>
     </div>
 
@@ -1314,7 +1320,7 @@ button { touch-action: manipulation; }
           🎯 Üben
         </button>
       </div>
-      <div id="sheet-mode-hint" style="font-size:0.72rem;color:var(--text-dim);margin-top:0.35rem;">🎯 Practice: exactly 30 cards, each once</div>
+      <div id="sheet-mode-hint" style="font-size:0.72rem;color:var(--text-dim);margin-top:0.35rem;">🎯 Üben: genau 30 Karten, jede einmal</div>
     </div>
 
     <div style="margin-bottom:0.75rem;">
@@ -1329,13 +1335,13 @@ button { touch-action: manipulation; }
         <input type="checkbox" id="tts-auto-mobile"
                onchange="ttsEnabled=this.checked;var d=document.getElementById('tts-auto');if(d)d.checked=this.checked;"
                style="width:18px;height:18px;accent-color:var(--gold);">
-        <span id="tts-auto-label" style="font-size:0.85rem;">🔊 Auto-play pronunciation</span>
+        <span style="font-size:0.85rem;">🔊 Aussprache automatisch</span>
       </label>
     </div>
 
     <div style="margin-bottom:0.75rem;">
-      <div id="size-label-mobile" style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;
-                  color:var(--text-dim);margin-bottom:0.4rem;">Cards per session</div>
+      <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;
+                  color:var(--text-dim);margin-bottom:0.4rem;">Kartenanzahl</div>
       <div class="toggle-group" style="flex-wrap:wrap;gap:0.3rem;">
         <button class="toggle-btn" onclick="document.getElementById('session-size').value='10'"
                 style="flex:1;min-width:45px;font-size:0.78rem;" id="sz-10">10</button>
@@ -1405,7 +1411,6 @@ var I18N = {
     pairLabel:     'Sprachpaar',
     modeLabel:     'Übungstyp',
     sizeLabel:     'Kartenanzahl',
-    filterTitle:   'Filter & Einstellungen',
     sessionMode:   'Session-Modus',
     learn_mode:    '📚 Lernen',
     practice_mode: '🎯 Üben',
@@ -1431,7 +1436,6 @@ var I18N = {
     mGap:          'Lückentext',
     mFaux:         'Faux amis',
     mKontext:      'Kontext-Satz (KI)',
-    mChoiceDE:     'ROM → Deutsch',
     sessionMode:   'Session-Modus',
     learn_mode:    '📚 Lernen',
     practice_mode: '🎯 Üben',
@@ -1472,7 +1476,6 @@ var I18N = {
     badgeNew:      'Neu',
     badgeReview:   'Wiederholung',
     langLabel:     'Deutsch',
-    germanLabel:   'Deutsch',
     showSolution:  'Lösung zeigen',
     fullSentence:  'Vollständiger Satz:',
     allThemes:     'Alle Themen',
@@ -1511,8 +1514,8 @@ var I18N = {
     ctxBtn:        '↑ vocab_context.json laden',
     expTitle:      'Fortschritt exportieren',
     expDesc:       'Speichere alle SRS-Daten als JSON-Datei – als Backup oder zum Übertragen auf ein anderes Gerät.',
-    expBtn:        '<span id="dash-exp-btn">⬇ Fortschritt herunterladen (.json)</span>',
-    expCsvBtn:     '<span id="dash-csv-btn">📊 Als Excel/CSV exportieren</span>',
+    expBtn:        '⬇ Fortschritt herunterladen (.json)',
+    expCsvBtn:     '📊 Als Excel/CSV exportieren',
     impTitle:      'Fortschritt importieren',
     impDesc:       'Lade eine zuvor gespeicherte JSON-Datei, um den Lernstand wiederherzustellen oder zu übertragen.',
     impBtn:        '↑ Datei auswählen…',
@@ -1548,7 +1551,6 @@ var I18N = {
     pairLabel:     'Language pair',
     modeLabel:     'Exercise type',
     sizeLabel:     'Cards per session',
-    filterTitle:   'Filter & Settings',
     sessionMode:   'Session mode',
     learn_mode:    '📚 Learn',
     practice_mode: '🎯 Practice',
@@ -1574,7 +1576,6 @@ var I18N = {
     mGap:          'Gap fill',
     mFaux:         'False friends',
     mKontext:      'Context (AI)',
-    mChoiceDE:     'ROM → German',
     sessionMode:   'Session mode',
     learn_mode:    '📚 Learn',
     practice_mode: '🎯 Practice',
@@ -1611,7 +1612,6 @@ var I18N = {
     badgeNew:      'New',
     badgeReview:   'Review',
     langLabel:     'English',
-    germanLabel:   'German',
     showSolution:  'Show solution',
     fullSentence:  'Full sentence:',
     allThemes:     'All themes',
@@ -2406,30 +2406,48 @@ function getSimilar(entry, targetLang, count) {
 }
 
 function renderFaux(entry) {
-  // Source: always Romance. Target: DE or EN based on uiLang.
-  const romLangs = ['it','fr','sp','pt'];
+  // Decide direction: if currentPair set, respect it; else random
+  let srcLang, tgtLang;
   const langs = getLangsForPair();
 
-  let srcLang;
   if (langs.length === 2) {
-    srcLang = langs[Math.floor(Math.random() * langs.length)];
+    // IT↔FR or SP↔PT mode: show word in one, ask for the other
+    [srcLang, tgtLang] = Math.random() < 0.5
+      ? [langs[0], langs[1]]
+      : [langs[1], langs[0]];
   } else {
-    srcLang = romLangs[Math.floor(Math.random() * romLangs.length)];
+    // All-languages mode: pick a random direction, favour cross-family pairs
+    const crossFamilyPairs = [
+      ['it','fr'],['fr','it'],['it','sp'],['sp','it'],
+      ['fr','sp'],['sp','fr'],['fr','pt'],['pt','fr'],
+      ['de','it'],['de','fr'],['de','sp'],['de','pt'],
+      ['it','de'],['fr','de'],['sp','de'],['pt','de'],
+    ];
+    [srcLang, tgtLang] = crossFamilyPairs[
+      Math.floor(Math.random() * crossFamilyPairs.length)
+    ];
   }
 
-  const tgtLang = uiLang === 'en' ? 'en' : 'de';
   const srcWord    = entry[srcLang];
-  const correctAns = entry[tgtLang] || entry['de'];
-  if (!srcWord || !correctAns) return renderChoice(entry);
+  const correctAns = entry[tgtLang];
+  if (!srcWord || !correctAns) {
+    // Fallback if entry lacks this language
+    return renderChoice(entry);
+  }
 
+  // Get 2 distractors
   const distractors = getSimilar(entry, tgtLang, 2);
   const options = shuffle([correctAns, ...distractors.slice(0,2)]);
 
   const srcColor = LANG_COLOR_MAP[srcLang];
-  const tgtColor = LANG_COLOR_MAP[tgtLang] || 'var(--text)';
+  const tgtColor = LANG_COLOR_MAP[tgtLang];
   const srcName  = LANG_NAME_MAP[srcLang];
-  const tgtFlag  = LANG_FLAGS[tgtLang];
+  const tgtName  = LANG_NAME_MAP[tgtLang];
 
+  // Encode for onclick
+  const correctEnc = correctAns.replace(/\\/g,'\\\\').replace(/'/g,"\'").replace(/"/g,'&quot;');
+
+  // Store correct answer safely - no inline string injection
   window._fauxCorrect = correctAns;
 
   return `<div class="card">
@@ -2437,9 +2455,10 @@ function renderFaux(entry) {
     ${themeTag(entry)}
 
     <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:0.5rem;">
-      ${LANG_FLAGS[srcLang]||srcName} → ${tgtFlag}
+      ${LANG_FLAGS[srcLang]||srcName} → ${LANG_FLAGS[tgtLang]||tgtName}
     </div>
 
+    <!-- Source word prominently displayed -->
     <div style="background:var(--surface2);border:1px solid var(--border);
                 border-radius:10px;padding:1.25rem 1.5rem;margin-bottom:1.5rem;
                 border-left:3px solid ${srcColor};">
@@ -2452,12 +2471,17 @@ function renderFaux(entry) {
         : ''}
     </div>
 
+    <div style="font-size:0.82rem;color:var(--text-dim);margin-bottom:0.75rem;">
+      ${t('choiceQ')} ${tgtName}?
+    </div>
+
+    <!-- 3 options – data-answer avoids any apostrophe/quote injection -->
     <div class="options-grid" id="faux-opts" style="grid-template-columns:1fr;">
       ${options.map((opt, idx) => `
         <div class="option" id="faux-opt-${idx}"
              data-answer="${escQ(opt)}"
              onclick="handleFauxMC(this)">
-          <div class="option-lang" style="font-size:0.9rem;">${tgtFlag}</div>
+          <div class="option-lang" style="font-size:0.9rem;">${LANG_FLAGS[tgtLang]||tgtName}</div>
           <span style="font-family:Georgia,serif;font-size:1.2rem;
                        color:${tgtColor};">${opt}</span>
         </div>`).join('')}
@@ -2807,9 +2831,22 @@ async function renderKontext(entry, container) {
     return;
   }
 
-  // ── Fallback: switch to CHOICE mode for uncached entries ───────
-  // Instead of slow API call, render a choice exercise instantly.
-  // This ensures zero wait time for ALL cards.
+  // ── Fallback: show clear message if no context DB loaded ──────
+  if (Object.keys(CONTEXT_DB).length === 0) {
+    container.innerHTML = `<div class="card" style="text-align:center;padding:2rem 1rem;">
+      <div style="font-size:2rem;margin-bottom:1rem;">📂</div>
+      <div style="font-size:1.1rem;font-weight:600;color:var(--text);margin-bottom:0.5rem;">
+        ${uiLang === 'en' ? 'No context sentences loaded' : 'Keine Kontextsätze geladen'}
+      </div>
+      <div style="font-size:0.85rem;color:var(--text-dim);margin-bottom:1.5rem;">
+        ${uiLang === 'en'
+          ? 'Upload vocab_context.json in the Overview tab to enable this exercise type.'
+          : 'Lade vocab_context.json im Übersicht-Tab hoch, um diesen Übungstyp zu aktivieren.'}
+      </div>
+    </div>`;
+    return;
+  }
+  // Entry not in DB — fall back to CHOICE silently
   renderExerciseOfType(entry, container, 'CHOICE');
 }
 
@@ -3341,6 +3378,9 @@ function renderChoiceDE(entry) {
       </div>
       <div style="font-size:0.8rem;color:var(--text-dim);">${wctag(entry.wc)}</div>
     </div>
+    <div style="font-size:0.78rem;color:var(--text-dim);margin-bottom:0.75rem;text-align:center;">
+      ${t('choiceQ')} ${t('langLabel')}?
+    </div>
     <div class="options-grid" id="opts-de">
       ${options.map(opt => `
         <div class="option" data-answer="${opt.replace(/"/g,'&quot;')}"
@@ -3436,18 +3476,6 @@ function applyI18N() {
   const backFixed = document.getElementById('btn-back');
   if (backFixed) backFixed.textContent = t('backBtn');
 
-  // ── Mobile sheet specific labels ──────────────────────────────
-  const ttsLbl = document.getElementById('tts-auto-label');
-  if (ttsLbl) ttsLbl.textContent = '🔊 ' + t('autoTTS');
-  const sizeLblM = document.getElementById('size-label-mobile');
-  if (sizeLblM) sizeLblM.textContent = t('sizeLabel');
-  const szAll = document.getElementById('sz-0');
-  if (szAll) szAll.textContent = t('cardsAll');
-
-  // ── Filter sheet title ────────────────────────────────────────
-  const filterSheetTitle = document.querySelector('.filter-sheet-title');
-  if (filterSheetTitle) filterSheetTitle.textContent = t('filterTitle');
-
   // ── Sidebar filter labels ────────────────────────────────────
   const filterLabels = document.querySelectorAll('.filter-label');
   const labelKeys = ['wcLabel','pairLabel','modeLabel_','sizeLabel','sessionMode','srcLang'];
@@ -3510,7 +3538,7 @@ function applyI18N() {
   // ── Mode hints ────────────────────────────────────────────────
   const modeHint   = document.getElementById('mode-hint');
   const shModeHint = document.getElementById('sheet-mode-hint');
-  const hint = sessionMode === 'LERNEN' ? t('learn_hint') : t('practice_hint').replace('N', (document.getElementById('session-size')?.value || '30'));
+  const hint = sessionMode === 'LERNEN' ? t('learn_hint') : t('practice_hint');
   if (modeHint)   modeHint.textContent   = hint;
   if (shModeHint) shModeHint.textContent = hint;
 
@@ -3535,9 +3563,13 @@ function applyI18N() {
   });
 
   // ── Dashboard labels ──────────────────────────────────────────
-  document.querySelectorAll('.dash-label').forEach((el, i) => {
-    const keys = ['dashLearned','dashMastered','dashDue','dashStreak'];
-    if (keys[i]) el.textContent = t(keys[i]);
+  const dashLblMap = {
+    'lbl-learned': 'dashLearned', 'lbl-mastered': 'dashMastered',
+    'lbl-due':     'dashDue',     'lbl-streak':   'dashStreak',
+  };
+  Object.keys(dashLblMap).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = t(dashLblMap[id]);
   });
 
   // ── Dashboard section text ─────────────────────────────────────
@@ -3563,7 +3595,6 @@ function applyI18N() {
   // ── Theme labels ──────────────────────────────────────────────
   const newLabels = uiLang === 'en' ? THEME_LABELS_EN : THEME_LABELS_DE;
   Object.keys(newLabels).forEach(function(k){ THEME_LABELS[k] = newLabels[k]; });
-  if (typeof buildSheetThemeGrid === 'function') buildSheetThemeGrid();
   if (typeof initSidebar === 'function') initSidebar();
 
   // ── Start prompt ───────────────────────────────────────────────
@@ -3643,10 +3674,10 @@ function updateContextStatus(count) {
   if (!el) return;
   if (count > 0) {
     const pct = Math.round(count / VOCAB.length * 100);
-    el.textContent = `✓ ${count.toLocaleString('de')} Sätze geladen (${pct}% der Vokabeln)`;
+    el.textContent = uiLang === 'en' ? `✓ ${count.toLocaleString()} sentences loaded (${pct}% of vocab)` : `✓ ${count.toLocaleString('de')} Sätze geladen (${pct}% der Vokabeln)`;
     el.style.color = 'var(--good)';
   } else {
-    el.textContent = '– Noch keine Sätze geladen';
+    el.textContent = t('ctxNone');
     el.style.color = 'var(--text-dim)';
   }
 }
@@ -3875,10 +3906,24 @@ function exportProgress() {
 }
 
 function exportCSV() {
-  // Compact CSV: only key columns per seen word
+  // Determine active languages based on current pair filter
+  const pairLangs = getLangsForPair(); // e.g. ['it','fr'] or all 4
+  const allRomLangs = ['it','fr','sp','pt'];
+  const activeLangs = pairLangs.length === 2 ? pairLangs : allRomLangs;
+
+  // Build header: active Romance lang columns + UI lang + SRS columns
+  const langNames = {
+    it: uiLang === 'en' ? 'Italian'    : 'Italienisch',
+    fr: uiLang === 'en' ? 'French'     : 'Französisch',
+    sp: uiLang === 'en' ? 'Spanish'    : 'Spanisch',
+    pt: uiLang === 'en' ? 'Portuguese' : 'Portugiesisch',
+  };
+  const uiLangName = uiLang === 'en' ? 'English' : 'Deutsch';
+  const romHeaders = activeLangs.map(l => langNames[l]);
+
   const header = uiLang === 'en'
-    ? ['#','Italian','German','English','Level','Interval (days)','Due','Reps']
-    : ['#','Italienisch','Deutsch','Englisch','Stufe','Intervall (Tage)','Fällig','Wdh.'];
+    ? ['#', ...romHeaders, uiLangName, 'Level', 'Interval (days)', 'Due', 'Reps']
+    : ['#', ...romHeaders, uiLangName, 'Stufe', 'Intervall (Tage)', 'Fällig', 'Wdh.'];
 
   const levelLabel = function(reps, interval) {
     if (reps === 0) return uiLang === 'en' ? 'New' : 'Neu';
@@ -3891,14 +3936,16 @@ function exportCSV() {
   VOCAB.forEach(function(entry) {
     const srsRaw = localStorage.getItem('srs_' + entry.row);
     if (!srsRaw) return;
+    // If pair filter active, only export entries that have both langs
+    if (pairLangs.length === 2 && (!entry[pairLangs[0]] || !entry[pairLangs[1]])) return;
     try {
       const srs = JSON.parse(srsRaw);
       const due = srs.due ? new Date(srs.due).toLocaleDateString('de-DE') : '-';
+      const romCells = activeLangs.map(l => entry[l] || '');
       rows.push([
         entry.row,
-        entry.it,
+        ...romCells,
         getDE(entry),
-        entry.en || '',
         levelLabel(srs.reps, srs.interval),
         srs.interval,
         due,
@@ -3907,9 +3954,9 @@ function exportCSV() {
     } catch(e) {}
   });
 
-  // Sort by Italian alphabetically
+  // Sort by first active Romance language alphabetically
   const [head, ...data] = rows;
-  data.sort(function(a, b) { return String(a[1]).localeCompare(String(b[1]), 'it'); });
+  data.sort(function(a, b) { return String(a[1]).localeCompare(String(b[1]), activeLangs[0]); });
 
   const bom = '\uFEFF';
   const csv = bom + [head, ...data].map(function(row) {
@@ -4041,6 +4088,7 @@ function initSidebar() {
         <span class="theme-count" id="tc-${key}">${themeCounts[key]||0}</span>
       </div>`).join('');
 
+  document.getElementById('tc-FAUX').textContent = RAW.faux.length;
   document.getElementById('tc-ALL').textContent  = VOCAB.length;
 }
 
@@ -4102,8 +4150,8 @@ document.addEventListener('keydown', function(e) {
 function setSessionMode(mode) {
   sessionMode = mode;
   const hints = {
-    'LERNEN': t('learn_hint'),
-    'UEBEN':  t('practice_hint').replace('N', (document.getElementById('session-size')?.value || '30'))
+    'LERNEN': '📚 Lernen: falsche Antworten kommen zurück (max. 1× pro Karte)',
+    'UEBEN':  '🎯 Üben: genau 30 Karten, jede einmal'
   };
   // Update all mode hint elements
   ['mode-hint', 'sheet-mode-hint'].forEach(id => {
@@ -4152,7 +4200,6 @@ function openFilterSheet() {
   const mode = document.getElementById('mode-select');
   const modem = document.getElementById('mode-select-mobile');
   if (mode && modem) modem.value = mode.value;
-  buildSheetThemeGrid();
   document.getElementById('filter-sheet').classList.add('open');
 }
 
@@ -4178,7 +4225,8 @@ function buildSheetThemeGrid() {
   const counts = {};
   VOCAB.forEach(e => { counts[e.theme] = (counts[e.theme]||0)+1; });
   const items = [
-    { key: 'ALL', label: t('allThemes') },
+    { key: 'ALL', label: 'Alle' },
+    { key: 'FAUX', label: '⚠ Faux amis' },
     ...Object.entries(THEME_LABELS)
       .sort((a,b) => (counts[b[0]]||0)-(counts[a[0]]||0))
       .map(([k,v]) => ({ key: k, label: v }))
